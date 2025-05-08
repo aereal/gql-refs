@@ -1,7 +1,8 @@
-import sade from "sade";
+import { Command } from "commander";
 import pkg from "../../package.json";
 
-export const run = (argv: Array<string>): void => program.parse(argv);
+export const run = (argv: Array<string>): void => {
+  program.parse(argv);
+};
 
-const program = sade(pkg.name, true);
-program.version(pkg.version);
+const program = new Command(pkg.name).version(pkg.version).helpOption(true);
