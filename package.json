@@ -3,7 +3,7 @@
   "version": "0.1.0",
   "scripts": {
     "main": "tsx ./bin/gql-refs/",
-    "test": ":"
+    "test": "tsx --test"
   },
   "author": {
     "name": "aereal"
