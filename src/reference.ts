@@ -1,4 +1,11 @@
-import { GraphQLCompositeType, GraphQLField } from "graphql";
+import {
+  GraphQLCompositeType,
+  GraphQLField,
+  GraphQLNamedType,
+  GraphQLObjectType,
+  GraphQLSchema,
+  isObjectType,
+} from "graphql";
 
 export const increaseReference = (
   ref: Reference,
@@ -22,6 +29,37 @@ export const increaseReference = (
   ref.objects[objectName].fields[fieldName] =
     ref.objects[objectName].fields[fieldName] + 1;
 };
+
+export const getPossibleReferences = (schema: GraphQLSchema): Reference => {
+  const typMap = schema.getTypeMap();
+  return {
+    objects: Object.keys(typMap).reduce<ObjectReferences>(
+      mergeObjectReferences(typMap),
+      {}
+    ),
+  };
+};
+
+const appendFieldReferences = (
+  typName: string,
+  typ: GraphQLObjectType
+): ObjectReferences => ({
+  [typName]: {
+    fields: Object.keys(typ.getFields()).reduce<FieldReferences>(
+      (accum, fieldName) => ({ ...accum, [fieldName]: 0 }),
+      {}
+    ),
+  },
+});
+
+const mergeObjectReferences =
+  (typMap: Record<string, GraphQLNamedType>) =>
+  (accum: ObjectReferences, typName: string): ObjectReferences => {
+    const typ = typMap[typName];
+    return isObjectType(typ) && !typName.startsWith("__")
+      ? { ...accum, ...appendFieldReferences(typName, typ) }
+      : accum;
+  };
 
 export const mergeReferences = (a: Reference, b: Reference): Reference => ({
   objects: mergeObject(a.objects, b.objects),
