@@ -3,7 +3,11 @@ import pkg from "../../package.json";
 import { countReferences } from "../count-references";
 import { parseQueryFile } from "../parse-query";
 import { parseSchemaFile } from "../parse-schema";
-import { mergeReferences, Reference } from "../reference";
+import {
+  getPossibleReferences,
+  mergeReferences,
+  Reference,
+} from "../reference";
 import { MissingSchemaFileError } from "./errors";
 
 export const run = (argv: Array<string>): void => {
@@ -24,9 +28,10 @@ const doMain = async (
       return docs.map((d) => countReferences(schema, d));
     })
   );
-  const r = results.reduce<Reference>(mergeReferences, {
-    objects: {},
-  });
+  const r = results.reduce<Reference>(
+    mergeReferences,
+    getPossibleReferences(schema)
+  );
   console.log(JSON.stringify(r));
 };
 
